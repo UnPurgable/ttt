@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,184 +8,299 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@400;500&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0d0d0d;
-    --panel: #161616;
-    --x: #ff4d4d;
-    --o: #4ddfff;
-    --grid: #2a2a2a;
-    --text: #f0f0f0;
-    --muted: #555;
-    --win: #ffd700;
-  }
+body.theme-void {
+–bg: #0a0a0a;
+–panel: #161616;
+–panel2: #1e1e1e;
+–x: #ff4d4d;
+–o: #4ddfff;
+–grid: #2a2a2a;
+–text: #e8e8e8;
+–muted: #555;
+–win: #ffd700;
+–shadow: rgba(0,0,0,0.6);
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    gap: 20px;
-    overflow-x: hidden;
-  }
+body.theme-arctic {
+–bg: #dff0fb;
+–panel: #ffffff;
+–panel2: #eaf5ff;
+–x: #1a6bbf;
+–o: #0099cc;
+–grid: #aaced8;
+–text: #0d2340;
+–muted: #7a9ec0;
+–win: #e6a817;
+–shadow: rgba(0,60,120,0.12);
+}
 
-  h1 {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(1.6rem, 7vw, 2.6rem);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text);
-  }
+body.theme-parchment {
+–bg: #f0e6d0;
+–panel: #fdf6ec;
+–panel2: #ede0c8;
+–x: #8b3a1a;
+–o: #4a6e2a;
+–grid: #c8a87a;
+–text: #2e1a0e;
+–muted: #9a7a5a;
+–win: #c8860a;
+–shadow: rgba(80,40,0,0.15);
+}
 
-  /* SCOREBOARD */
-  .scoreboard {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-    max-width: 360px;
-  }
+body {
+background-color: var(–bg);
+color: var(–text);
+font-family: ‘DM Mono’, monospace;
+min-height: 100dvh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 24px 20px;
+gap: 18px;
+overflow-x: hidden;
+transition: background-color 0.35s, color 0.35s;
+}
 
-  .score-card {
-    flex: 1;
-    background: var(--panel);
-    border-radius: 14px;
-    padding: 14px 10px;
-    text-align: center;
-    border: 2px solid var(--grid);
-    transition: border-color 0.25s;
-  }
+/* void background pattern */
+body.theme-void { background-image: radial-gradient(circle at 20% 20%, #1a1a1a 0%, #0a0a0a 60%); }
+body.theme-arctic { background-image: linear-gradient(160deg, #eaf6ff 0%, #cce8f8 100%); }
+body.theme-parchment { background-image: linear-gradient(160deg, #f5ede0 0%, #e8d5b8 100%); }
 
-  .score-card.active-x { border-color: var(--x); box-shadow: 0 0 18px rgba(255,77,77,0.25); }
-  .score-card.active-o { border-color: var(--o); box-shadow: 0 0 18px rgba(77,223,255,0.25); }
+h1 {
+font-family: ‘Black Han Sans’, sans-serif;
+font-size: clamp(1.8rem, 7vw, 2.8rem);
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(–text);
+}
 
-  .score-card .label {
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
+/* ── THEME SWITCHER ── */
+.theme-switcher {
+display: flex;
+gap: 10px;
+align-items: center;
+background: var(–panel);
+border: 2px solid var(–grid);
+border-radius: 50px;
+padding: 6px 14px;
+box-shadow: 0 2px 12px var(–shadow);
+}
 
-  .score-card .player {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 0.08em;
-  }
+.theme-label {
+font-size: 0.58rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–muted);
+padding-right: 6px;
+border-right: 1px solid var(–grid);
+}
 
-  .score-card.x-card .player { color: var(--x); }
-  .score-card.o-card .player { color: var(--o); }
-  .score-card.draw-card .player { color: var(--muted); }
+.theme-btn {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+border: 3px solid transparent;
+cursor: pointer;
+transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+-webkit-tap-highlight-color: transparent;
+padding: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.1rem;
+position: relative;
+overflow: hidden;
+}
 
-  .score-card .count {
-    font-size: 2rem;
-    font-weight: 500;
-    margin-top: 2px;
-  }
+.theme-btn:active { transform: scale(0.85); }
 
-  /* TURN INDICATOR */
-  .turn {
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    height: 20px;
-    transition: color 0.2s;
-  }
+.theme-btn.active {
+border-color: var(–text);
+box-shadow: 0 0 0 2px var(–bg), 0 0 0 4px var(–text);
+transform: scale(1.1);
+}
 
-  .turn span { font-weight: 500; }
-  .turn .tx { color: var(--x); }
-  .turn .to { color: var(--o); }
+.void-btn {
+background: conic-gradient(#1a1a1a, #333, #111, #444, #1a1a1a);
+}
 
-  /* GRID */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    max-width: 340px;
-  }
+.arctic-btn {
+background: conic-gradient(#a8d4f5, #c8eaff, #7bbfe8, #d8f0ff, #a8d4f5);
+}
 
-  .cell {
-    aspect-ratio: 1;
-    background: var(--panel);
-    border-radius: 16px;
-    border: 2px solid var(--grid);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(2rem, 12vw, 3.5rem);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
+.parchment-btn {
+background: conic-gradient(#d4b896, #e8d0b0, #c0966a, #f0dfc0, #d4b896);
+}
 
-  .cell:active { transform: scale(0.93); }
+.theme-btn .dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: rgba(255,255,255,0.5);
+position: absolute;
+top: 6px;
+left: 6px;
+}
 
-  .cell.x { color: var(--x); border-color: rgba(255,77,77,0.4); }
-  .cell.o { color: var(--o); border-color: rgba(77,223,255,0.4); }
-  .cell.win-cell { background: rgba(255,215,0,0.08); border-color: var(--win); }
+/* ── SCOREBOARD ── */
+.scoreboard {
+display: flex;
+gap: 10px;
+width: 100%;
+max-width: 360px;
+}
 
-  .cell.empty:hover { background: #1e1e1e; border-color: #3a3a3a; }
+.score-card {
+flex: 1;
+background: var(–panel);
+border-radius: 16px;
+padding: 14px 8px;
+text-align: center;
+border: 2px solid var(–grid);
+box-shadow: 0 2px 10px var(–shadow);
+transition: border-color 0.25s, box-shadow 0.25s, background 0.35s;
+}
 
-  /* STATUS / OVERLAY */
-  .status {
-    font-size: 0.85rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    min-height: 22px;
-    text-align: center;
-    color: var(--text);
-  }
+.score-card.active-x { border-color: var(–x); box-shadow: 0 0 20px color-mix(in srgb, var(–x) 35%, transparent); }
+.score-card.active-o { border-color: var(–o); box-shadow: 0 0 20px color-mix(in srgb, var(–o) 35%, transparent); }
 
-  .status.win { color: var(--win); font-weight: 500; }
-  .status.draw { color: var(--muted); }
+.score-card .label {
+font-size: 0.58rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 4px;
+}
 
-  /* BUTTONS */
-  .btn-row {
-    display: flex;
-    gap: 10px;
-  }
+.score-card .player {
+font-family: ‘Black Han Sans’, sans-serif;
+font-size: 1.6rem;
+letter-spacing: 0.08em;
+}
 
-  button {
-    padding: 12px 28px;
-    border-radius: 50px;
-    border: 2px solid var(--grid);
-    background: var(--panel);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
+.score-card.x-card .player { color: var(–x); }
+.score-card.o-card .player { color: var(–o); }
+.score-card.draw-card .player { color: var(–muted); }
 
-  button:active { transform: scale(0.96); }
-  button.primary { border-color: var(--x); background: rgba(255,77,77,0.1); color: var(--x); }
-  button.secondary { border-color: var(--muted); color: var(--muted); }
-  button.secondary:hover { border-color: var(--text); color: var(--text); }
+.score-card .count {
+font-size: 2.2rem;
+font-weight: 500;
+margin-top: 2px;
+color: var(–text);
+}
 
-  /* Win animation */
-  @keyframes pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-    100% { transform: scale(1); }
-  }
-  .popped { animation: pop 0.3s ease; }
+/* ── TURN ── */
+.turn {
+font-size: 0.78rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–muted);
+height: 22px;
+}
+
+.turn .tx { color: var(–x); font-weight: 500; }
+.turn .to { color: var(–o); font-weight: 500; }
+
+/* ── GRID ── */
+.grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+width: 100%;
+max-width: 340px;
+}
+
+.cell {
+aspect-ratio: 1;
+background: var(–panel);
+border-radius: 18px;
+border: 2px solid var(–grid);
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Black Han Sans’, sans-serif;
+font-size: clamp(2rem, 12vw, 3.5rem);
+cursor: pointer;
+box-shadow: 0 2px 8px var(–shadow);
+transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+}
+
+.cell:active { transform: scale(0.91); }
+.cell.empty:hover { background: var(–panel2); }
+.cell.x { color: var(–x); border-color: color-mix(in srgb, var(–x) 50%, transparent); }
+.cell.o { color: var(–o); border-color: color-mix(in srgb, var(–o) 50%, transparent); }
+.cell.win-cell {
+background: color-mix(in srgb, var(–win) 12%, var(–panel));
+border-color: var(–win);
+box-shadow: 0 0 18px color-mix(in srgb, var(–win) 40%, transparent);
+}
+
+/* ── STATUS ── */
+.status {
+font-size: 0.88rem;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+min-height: 22px;
+text-align: center;
+color: var(–text);
+}
+
+.status.win { color: var(–win); font-weight: 500; }
+.status.draw { color: var(–muted); }
+
+/* ── BUTTONS ── */
+.btn-row { display: flex; gap: 10px; }
+
+button {
+padding: 13px 26px;
+border-radius: 50px;
+border: 2px solid var(–grid);
+background: var(–panel);
+color: var(–text);
+font-family: ‘DM Mono’, monospace;
+font-size: 0.75rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+cursor: pointer;
+box-shadow: 0 2px 8px var(–shadow);
+transition: background 0.15s, border-color 0.15s, transform 0.1s;
+-webkit-tap-highlight-color: transparent;
+}
+
+button:active { transform: scale(0.95); }
+button.primary { border-color: var(–x); background: color-mix(in srgb, var(–x) 12%, var(–panel)); color: var(–x); }
+button.secondary { border-color: var(–muted); color: var(–muted); }
+
+@keyframes pop {
+0% { transform: scale(1); }
+50% { transform: scale(1.16); }
+100% { transform: scale(1); }
+}
+.popped { animation: pop 0.3s ease; }
 </style>
+
 </head>
-<body>
+<body class="theme-void">
 
 <h1>Tic Tac Toe</h1>
+
+<div class="theme-switcher">
+  <span class="theme-label">Theme</span>
+  <button class="theme-btn void-btn active" data-theme="void" title="Void">
+    <span class="dot"></span>
+  </button>
+  <button class="theme-btn arctic-btn" data-theme="arctic" title="Arctic">
+    <span class="dot"></span>
+  </button>
+  <button class="theme-btn parchment-btn" data-theme="parchment" title="Parchment">
+    <span class="dot"></span>
+  </button>
+</div>
 
 <div class="scoreboard">
   <div class="score-card x-card" id="cardX">
@@ -194,7 +310,7 @@
   </div>
   <div class="score-card draw-card" id="cardD">
     <div class="label">Draws</div>
-    <div class="player" style="color:#666">—</div>
+    <div class="player" style="color:var(--muted)">—</div>
     <div class="count" id="scoreD">0</div>
   </div>
   <div class="score-card o-card" id="cardO">
@@ -206,7 +322,7 @@
 
 <div class="turn" id="turn">Turn: <span class="tx">X</span></div>
 
-<div class="grid" id="grid">
+<div class="grid">
   <div class="cell empty" data-i="0"></div>
   <div class="cell empty" data-i="1"></div>
   <div class="cell empty" data-i="2"></div>
@@ -226,6 +342,19 @@
 </div>
 
 <script>
+  // THEME
+  const themeBtns = document.querySelectorAll('.theme-btn');
+  applyTheme(localStorage.getItem('ttt-theme') || 'void');
+
+  themeBtns.forEach(btn => btn.addEventListener('click', () => applyTheme(btn.dataset.theme)));
+
+  function applyTheme(t) {
+    document.body.className = 'theme-' + t;
+    themeBtns.forEach(b => b.classList.toggle('active', b.dataset.theme === t));
+    localStorage.setItem('ttt-theme', t);
+  }
+
+  // GAME
   const cells = document.querySelectorAll('.cell');
   const turnEl = document.getElementById('turn');
   const statusEl = document.getElementById('status');
@@ -236,7 +365,6 @@
   const cardO = document.getElementById('cardO');
 
   const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-
   let board = Array(9).fill('');
   let current = 'X';
   let gameOver = false;
@@ -252,11 +380,8 @@
   }
 
   function checkWin() {
-    for (const [a,b,c] of WINS) {
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return [a, b, c];
-      }
-    }
+    for (const [a,b,c] of WINS)
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) return [a,b,c];
     return null;
   }
 
@@ -264,7 +389,6 @@
     cell.addEventListener('click', () => {
       const i = +cell.dataset.i;
       if (gameOver || board[i]) return;
-
       board[i] = current;
       cell.textContent = current;
       cell.classList.remove('empty');
@@ -304,10 +428,7 @@
   function newRound() {
     board = Array(9).fill('');
     gameOver = false;
-    cells.forEach(c => {
-      c.textContent = '';
-      c.className = 'cell empty';
-    });
+    cells.forEach(c => { c.textContent = ''; c.className = 'cell empty'; });
     statusEl.textContent = '';
     statusEl.className = 'status';
     setTurn('X');
@@ -326,5 +447,6 @@
 
   setTurn('X');
 </script>
+
 </body>
 </html>
