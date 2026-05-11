@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Tic Tac Toe</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --panel: #161616;
+    --x: #ff4d4d;
+    --o: #4ddfff;
+    --grid: #2a2a2a;
+    --text: #f0f0f0;
+    --muted: #555;
+    --win: #ffd700;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(1.6rem, 7vw, 2.6rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  /* SCOREBOARD */
+  .scoreboard {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .score-card {
+    flex: 1;
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 2px solid var(--grid);
+    transition: border-color 0.25s;
+  }
+
+  .score-card.active-x { border-color: var(--x); box-shadow: 0 0 18px rgba(255,77,77,0.25); }
+  .score-card.active-o { border-color: var(--o); box-shadow: 0 0 18px rgba(77,223,255,0.25); }
+
+  .score-card .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .score-card .player {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  .score-card.x-card .player { color: var(--x); }
+  .score-card.o-card .player { color: var(--o); }
+  .score-card.draw-card .player { color: var(--muted); }
+
+  .score-card .count {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* TURN INDICATOR */
+  .turn {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    height: 20px;
+    transition: color 0.2s;
+  }
+
+  .turn span { font-weight: 500; }
+  .turn .tx { color: var(--x); }
+  .turn .to { color: var(--o); }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    background: var(--panel);
+    border-radius: 16px;
+    border: 2px solid var(--grid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(2rem, 12vw, 3.5rem);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .cell:active { transform: scale(0.93); }
+
+  .cell.x { color: var(--x); border-color: rgba(255,77,77,0.4); }
+  .cell.o { color: var(--o); border-color: rgba(77,223,255,0.4); }
+  .cell.win-cell { background: rgba(255,215,0,0.08); border-color: var(--win); }
+
+  .cell.empty:hover { background: #1e1e1e; border-color: #3a3a3a; }
+
+  /* STATUS / OVERLAY */
+  .status {
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    min-height: 22px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  .status.win { color: var(--win); font-weight: 500; }
+  .status.draw { color: var(--muted); }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  button {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: 2px solid var(--grid);
+    background: var(--panel);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:active { transform: scale(0.96); }
+  button.primary { border-color: var(--x); background: rgba(255,77,77,0.1); color: var(--x); }
+  button.secondary { border-color: var(--muted); color: var(--muted); }
+  button.secondary:hover { border-color: var(--text); color: var(--text); }
+
+  /* Win animation */
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  .popped { animation: pop 0.3s ease; }
+</style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div class="scoreboard">
+  <div class="score-card x-card" id="cardX">
+    <div class="label">Player</div>
+    <div class="player">X</div>
+    <div class="count" id="scoreX">0</div>
+  </div>
+  <div class="score-card draw-card" id="cardD">
+    <div class="label">Draws</div>
+    <div class="player" style="color:#666">—</div>
+    <div class="count" id="scoreD">0</div>
+  </div>
+  <div class="score-card o-card" id="cardO">
+    <div class="label">Player</div>
+    <div class="player">O</div>
+    <div class="count" id="scoreO">0</div>
+  </div>
+</div>
+
+<div class="turn" id="turn">Turn: <span class="tx">X</span></div>
+
+<div class="grid" id="grid">
+  <div class="cell empty" data-i="0"></div>
+  <div class="cell empty" data-i="1"></div>
+  <div class="cell empty" data-i="2"></div>
+  <div class="cell empty" data-i="3"></div>
+  <div class="cell empty" data-i="4"></div>
+  <div class="cell empty" data-i="5"></div>
+  <div class="cell empty" data-i="6"></div>
+  <div class="cell empty" data-i="7"></div>
+  <div class="cell empty" data-i="8"></div>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="btn-row">
+  <button class="primary" id="btnNext">New Round</button>
+  <button class="secondary" id="btnReset">Reset Scores</button>
+</div>
+
+<script>
+  const cells = document.querySelectorAll('.cell');
+  const turnEl = document.getElementById('turn');
+  const statusEl = document.getElementById('status');
+  const scoreX = document.getElementById('scoreX');
+  const scoreO = document.getElementById('scoreO');
+  const scoreD = document.getElementById('scoreD');
+  const cardX = document.getElementById('cardX');
+  const cardO = document.getElementById('cardO');
+
+  const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+  let board = Array(9).fill('');
+  let current = 'X';
+  let gameOver = false;
+  let scores = { X: 0, O: 0, D: 0 };
+
+  function setTurn(p) {
+    current = p;
+    if (!gameOver) {
+      turnEl.innerHTML = `Turn: <span class="t${p.toLowerCase()}">${p}</span>`;
+      cardX.className = 'score-card x-card' + (p === 'X' ? ' active-x' : '');
+      cardO.className = 'score-card o-card' + (p === 'O' ? ' active-o' : '');
+    }
+  }
+
+  function checkWin() {
+    for (const [a,b,c] of WINS) {
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return [a, b, c];
+      }
+    }
+    return null;
+  }
+
+  cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+      const i = +cell.dataset.i;
+      if (gameOver || board[i]) return;
+
+      board[i] = current;
+      cell.textContent = current;
+      cell.classList.remove('empty');
+      cell.classList.add(current.toLowerCase());
+
+      const win = checkWin();
+      if (win) {
+        gameOver = true;
+        win.forEach(idx => cells[idx].classList.add('win-cell', 'popped'));
+        statusEl.textContent = `Player ${current} wins! 🎉`;
+        statusEl.className = 'status win';
+        turnEl.textContent = '';
+        scores[current]++;
+        scoreX.textContent = scores.X;
+        scoreO.textContent = scores.O;
+        animateScore(current === 'X' ? scoreX : scoreO);
+      } else if (!board.includes('')) {
+        gameOver = true;
+        statusEl.textContent = "It's a draw!";
+        statusEl.className = 'status draw';
+        turnEl.textContent = '';
+        scores.D++;
+        scoreD.textContent = scores.D;
+        animateScore(scoreD);
+      } else {
+        setTurn(current === 'X' ? 'O' : 'X');
+      }
+    });
+  });
+
+  function animateScore(el) {
+    el.classList.remove('popped');
+    void el.offsetWidth;
+    el.classList.add('popped');
+  }
+
+  function newRound() {
+    board = Array(9).fill('');
+    gameOver = false;
+    cells.forEach(c => {
+      c.textContent = '';
+      c.className = 'cell empty';
+    });
+    statusEl.textContent = '';
+    statusEl.className = 'status';
+    setTurn('X');
+  }
+
+  function resetAll() {
+    scores = { X: 0, O: 0, D: 0 };
+    scoreX.textContent = '0';
+    scoreO.textContent = '0';
+    scoreD.textContent = '0';
+    newRound();
+  }
+
+  document.getElementById('btnNext').addEventListener('click', newRound);
+  document.getElementById('btnReset').addEventListener('click', resetAll);
+
+  setTurn('X');
+</script>
+</body>
+</html>
